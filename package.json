@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "prestart": "npm run setup",
+    "setup": "node src/scripts",
     "start": "nodemon  -r dotenv/config src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

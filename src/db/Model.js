@@ -26,11 +26,17 @@ class Model {
   }
   async findById(filter) {
     // {id:1,something:"new"}
+    if (!filter || (!filter.id.name && !filter.id.value)) {
+      throw new Error("Id is required");
+    }
     let query = `SELECT * FROM public.${this.name} WHERE ${filter.id.name}=${filter.id.value} `;
     const { rows } = await db.query(query);
     return rows[0];
   }
   async create(data) {
+    if (!data || Object.entries(data).length === 0) {
+      throw new Error("Data is required to create ", this.name);
+    }
     let keys = Object.keys(data);
     let values = Object.values(data);
     let query = `INSERT INTO public.${this.name} (${keys.join(
@@ -41,6 +47,14 @@ class Model {
     return { command, rowCount };
   }
   async findByIdAndUpdate(id, update) {
+    if (
+      !update ||
+      !id ||
+      (!id.name && !id.value) ||
+      Object.entries(update).length === 0
+    ) {
+      throw new Error("Id and update are required");
+    }
     let query = `UPDATE public.${this.name} SET ${Object.entries(update)
       .map(([key, value]) => `${key}='${value}'`)
       .join(",")} WHERE ${id.name}=${id.value}`;
@@ -49,6 +63,9 @@ class Model {
     return { command, rowCount };
   }
   async findByIdAndDelete(id) {
+    if (!id || (!id.name && !id.value)) {
+      throw new Error("Id is required");
+    }
     let query = `DELETE FROM public.${this.name} WHERE ${id.name}=${id.value}`;
     query += ";";
     const { command, rowCount } = await db.query(query);

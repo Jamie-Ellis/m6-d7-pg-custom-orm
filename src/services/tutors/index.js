@@ -1,12 +1,23 @@
 const route = require("express").Router();
 const Model = require("../../db/Model");
-
-const Students = new Model("students");
+const db = require("../../db");
+const Tutors = new Model("tutors");
 
 route.get("/", async (req, res, next) => {
   try {
-    const response = await Students.find(req.query);
+    const response = await Tutors.find(req.query);
     res.send(response);
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+});
+
+route.get("/stats", async (req, res, next) => {
+  try {
+    const { countBy, value } = req.query;
+    const queryText = `SELECT COUNT(tutor.${countBy}) AS count,tutor.${countBy} FROM public.tutors as tutor WHERE tutor.${countBy}='${value}' GROUP BY tutor.${countBy}`;
+    const { rows } = await db.query(queryText);
+    res.send(rows);
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
@@ -14,8 +25,8 @@ route.get("/", async (req, res, next) => {
 
 route.get("/:id", async (req, res, next) => {
   try {
-    const response = await Students.findById({
-      id: { name: "student_id", value: req.params.id },
+    const response = await Tutors.findById({
+      id: { name: "tutor_id", value: req.params.id },
     });
     res.send(response);
   } catch (error) {
@@ -25,7 +36,7 @@ route.get("/:id", async (req, res, next) => {
 
 route.post("/", async (req, res, next) => {
   try {
-    const response = await Students.create(req.body);
+    const response = await Tutors.create(req.body);
     res.send(response);
   } catch (error) {
     res.status(500).send({ message: error.message });
@@ -34,8 +45,8 @@ route.post("/", async (req, res, next) => {
 
 route.put("/:id", async (req, res, next) => {
   try {
-    const response = await Students.findByIdAndUpdate(
-      { name: "student_id", value: req.params.id },
+    const response = await Tutors.findByIdAndUpdate(
+      { name: "tutor_id", value: req.params.id },
       req.body
     );
     res.send(response);
@@ -46,8 +57,8 @@ route.put("/:id", async (req, res, next) => {
 
 route.delete("/:id", async (req, res, next) => {
   try {
-    const response = await Students.findByIdAndDelete({
-      name: "student_id",
+    const response = await Tutors.findByIdAndDelete({
+      name: "tutor_id",
       value: req.params.id,
     });
     res.send(response);
