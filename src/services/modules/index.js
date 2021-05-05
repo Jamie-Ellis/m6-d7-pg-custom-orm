@@ -48,6 +48,38 @@ route.get("/:id/students", async (req, res, next) => {
   }
 });
 
+route.get("/:id/tutors/:tutorId", async (req, res, next) => {
+  try {
+    const queryText = `
+    SELECT 
+    relation.tutor_id,relation.module_id ,relation.relation_id as relation_id,
+    student.name as student_name,student.lastname as student_lastname,student.tutor_id,
+    module.name as module_name,module.module_id
+    FROM public.tutor_modules as relation
+    INNER JOIN public.tutors as tutor ON tutor.tutor_id = relation.tutor_id 
+    INNER JOIN public.modules as module ON module.module_id = relation.module_id
+    ;
+    `;
+    const { rows } = await db.query(queryText);
+    res.send(rows);
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+});
+
+route.post("/:id/tutors/:tutorId", async (req, res, next) => {
+  try {
+    const queryText = `
+  INSERT INTO  tutor_modules  (tutor_id, module_id) values(${req.body.tutorId, req.body.moduleId})
+    ;
+    `;
+    const { rows } = await db.query(queryText);
+    res.send(rows);
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+});
+
 route.post("/", async (req, res, next) => {
   try {
     const response = await Modules.create(req.body);
